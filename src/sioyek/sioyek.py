@@ -1167,8 +1167,12 @@ class Document:
 
         shared_database = self.sioyek.get_shared_database()
         cursor = shared_database.execute(HIGHLIGHT_SELECT_QUERY)
-        highlights = [Highlight(self, text, highlight_type, (begin_x, begin_y), (end_x, end_y)) for _, _, text, highlight_type, begin_x, begin_y, end_x, end_y in cursor.fetchall()]
-        return highlights
+        return [
+        Highlight(self, text, highlight_type, (begin_x, begin_y), (end_x, end_y))
+        for row in cursor.fetchall()
+        if len(row) >= 8
+        for _, _, text, highlight_type, begin_x, begin_y, end_x, end_y, *_ in [row]
+    ]
     
     def get_page_selection(self, page_number, selection_begin_x, selection_begin_y, selection_end_x, selection_end_y):
         in_range = False
