@@ -1154,8 +1154,12 @@ class Document:
         BOOKMARK_SELECT_QUERY = "select * from bookmarks where document_path='{}'".format(doc_hash)
         shared_database = self.sioyek.get_shared_database()
         cursor = shared_database.execute(BOOKMARK_SELECT_QUERY)
-        bookmarks = [Bookmark(self, desc, y_offset) for _, _, desc, y_offset in cursor.fetchall()]
-        return bookmarks
+        return [
+        Bookmark(self, desc, y_offset)
+        for row in cursor.fetchall()
+        if len(row) >= 4
+        for _, _, desc, y_offset, *_ in [row]
+    ]
 
     def get_highlights(self):
         doc_hash = self.get_hash()
